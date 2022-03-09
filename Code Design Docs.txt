@@ -1,5 +1,6 @@
-
-Determining the best resistor possible (based on placing in a known resistor into the circuit)
+-------------------------------------------------
+Determining the best resistor possible (based on 
+placing in a known resistor into the circuit)
 
 getResistorValue()
 	Rk = a known resistor (R1)
@@ -12,14 +13,8 @@ a = getResistorValue() with out laser
 b = getResistorValue() with laser
 
 bestResistor = (a + b) / 2
-
-
-
-
-
-
-
-
-
-
-
+-------------------------------------------------
+Events
+______Update(value)
+______Pressed(duration, timeout)
+-------------------------------------------------
