@@ -18,3 +18,9 @@ Events
 ______Update(value)
 ______Pressed(duration, timeout)
 -------------------------------------------------
+
+MainLoop
+- Collectdata
+- QueueEvents
+- process events
+- Draw

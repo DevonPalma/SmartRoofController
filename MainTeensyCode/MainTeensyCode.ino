@@ -1,36 +1,34 @@
-#include "PhotoresistorBox.h"
 #include "PINS.h"
-#include <OneButton.h>
-#include <Timer.h>
+#include "Looper.h"
+#include "EncoderLooper.h"
+#include "PhotoresistorBox.h"
 
-PhotoresistorBox orangeBox(RESISTOR_BOX_ORANGE);
-PhotoresistorBox blueBox(RESISTOR_BOX_BLUE);
-PhotoresistorBox grayBox(RESISTOR_BOX_GRAY);
-PhotoresistorBox greenBox(RESISTOR_BOX_GREEN);
+EncoderLooper myEncoder(ENCODER_A, ENCODER_B, ENCODER_BUTTON, ENCODER_RED, ENCODER_GREEN);
 PhotoresistorBox yellowBox(RESISTOR_BOX_YELLOW);
-
-OneButton myButton(POTENTIOMETER_BUTTON, true, true);
-
-Timer displayTimer;
+PhotoresistorBox greenBox(RESISTOR_BOX_GREEN);
+PhotoresistorBox grayBox(RESISTOR_BOX_GRAY);
+PhotoresistorBox blueBox(RESISTOR_BOX_BLUE);
+PhotoresistorBox orangeBox(RESISTOR_BOX_ORANGE);
 
 void setup() {
-  displayTimer.setDuration(250);
-  displayTimer.start();
+
+  addLooper(myEncoder);
+  myEncoder.attachClick(encoderClick);
+  addLooper(yellowBox);
+  addLooper(greenBox);
+  addLooper(grayBox);
+  addLooper(blueBox);
+  addLooper(orangeBox);
 }
 
-
 void loop() {
-  myButton.tick();
+  runLoopers();
+}
 
-  orangeBox.tick();
-  blueBox.tick();
-  grayBox.tick();
-  greenBox.tick();
-  yellowBox.tick();
+void encoderClick() {
+  static bool redHigh = false;
 
-  if (displayTimer.isDone()) {
-    displayTimer.start();
-    Serial.printf("%03d    %03d    %03d    %03d    %03d\n", yellowBox.getSample(),
-                  greenBox.getSample(), grayBox.getSample(), blueBox.getSample(), orangeBox.getSample());
-  }
+  redHigh = !redHigh;
+  myEncoder.setRed(redHigh);
+  myEncoder.setGreen(!redHigh);
 }

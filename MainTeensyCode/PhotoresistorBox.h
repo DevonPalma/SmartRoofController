@@ -1,16 +1,18 @@
 #include "Sampler.h"
+#include "Looper.h"
 
-const int SAMPLE_COUNT = 50;
 
-class PhotoresistorBox : public Sampler{
+class PhotoresistorBox : private Sampler, public Looper {
 
     int _pin;
 
     int sampledMax;
     int sampledMin;
 
+    int lastSample;
+
   public:
-    PhotoresistorBox(int pin) : Sampler(SAMPLE_COUNT) {
+    PhotoresistorBox(int pin) {
       _pin = pin;
       pinMode(_pin, INPUT);
     }
@@ -19,17 +21,24 @@ class PhotoresistorBox : public Sampler{
       addSample(analogRead(_pin));
     }
 
+    void update() {
+      lastSample = getSample();
+      Serial.printf("%d:%d    ", _pin, lastSample); 
+    }
+
+    void draw() {}
+
     void setLaserOff() {
-      sampleMax = getSample();
+      sampledMax = lastSample;
     }
 
     void setLaserOn() {
-      sampleMin = getSample();
+      sampledMin = lastSample;
     }
 
     bool isOn() {
-      int mid = (sampleMax + sampleMin) / 2;
-      return getSample() > mid;
+      int mid = (sampledMax + sampledMin) / 2;
+      return lastSample > mid;
     }
 
 
