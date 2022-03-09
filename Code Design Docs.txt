@@ -1,3 +1,25 @@
-Code will run off an event based system
+
+Determining the best resistor possible (based on placing in a known resistor into the circuit)
+
+getResistorValue()
+	Rk = a known resistor (R1)
+	Vcur = Measure currnet voltage
+	Vin = 3.3
+	Using the formula P2 = Vin * Rk / Vcur - Rk
+	
+
+a = getResistorValue() with out laser
+b = getResistorValue() with laser
+
+bestResistor = (a + b) / 2
+
+
+
+
+
+
+
+
+
 
 
