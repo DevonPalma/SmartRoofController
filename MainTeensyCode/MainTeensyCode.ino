@@ -1,39 +1,36 @@
-#include "ObserverPattern.h"
+#include "PhotoresistorBox.h"
+#include "PINS.h"
+#include <OneButton.h>
+#include <Timer.h>
 
-class TestSubject : public Subject<TestSubject> {
-  private:
-    int _value;
-  public:
-    TestSubject() {};
-    ~TestSubject() {};
-    void setValue(int value) {
-      _value = value;
-      notify();
-    }
-    int getValue() {
-      return _value;
-    }
-} A;
+PhotoresistorBox orangeBox(RESISTOR_BOX_ORANGE);
+PhotoresistorBox blueBox(RESISTOR_BOX_BLUE);
+PhotoresistorBox grayBox(RESISTOR_BOX_GRAY);
+PhotoresistorBox greenBox(RESISTOR_BOX_GREEN);
+PhotoresistorBox yellowBox(RESISTOR_BOX_YELLOW);
 
+OneButton myButton(POTENTIOMETER_BUTTON, true, true);
 
-class TestObserver : public Observer<TestSubject> {
-  public:
-    TestObserver() {}
-    ~TestObserver() {}
-
-    void update(TestSubject *subject) {
-      int val = subject->getValue();
-      Serial.printf("Subjects value = %d", val);
-    }
-} B;
+Timer displayTimer;
 
 void setup() {
-  Serial.begin(9600);
-  while (!Serial);
-  A.attach(B);
-  A.setValue(3);
+  displayTimer.setDuration(250);
+  displayTimer.start();
 }
 
+
 void loop() {
-  
+  myButton.tick();
+
+  orangeBox.tick();
+  blueBox.tick();
+  grayBox.tick();
+  greenBox.tick();
+  yellowBox.tick();
+
+  if (displayTimer.isDone()) {
+    displayTimer.start();
+    Serial.printf("%03d    %03d    %03d    %03d    %03d\n", yellowBox.getSample(),
+                  greenBox.getSample(), grayBox.getSample(), blueBox.getSample(), orangeBox.getSample());
+  }
 }
