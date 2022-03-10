@@ -60,138 +60,142 @@ class PRBoxController {
     // Clear all sample data
     void _tickSampler() {
       // handle sampler
-      _sampleValue += getValue();
-      _sampleCount++;
-      if (_sampleCount > _sampleMax) {
-        _lastValue = _sampleValue / _sampleCount;
+      _sampleCount += 1;
+      _sampleValue += getRawValue();
+      if (_sampleCount >= _sampleMax) {
+        _lastValue = (float)_sampleValue / _sampleCount;
         _sampleValue = 0;
         _sampleCount = 0;
       }
     }
 
 
-    enum STATE {
-      PR_INACTIVE,
-      PR_ON,
-      PR_LONG_ON,
-      PR_MULTI_ON,
-      PR_OFF
-    };
-    STATE _currentState = PR_INACTIVE;
-    int _clickCount = 0;
-    int _startTime;
-    int _pressTimeout;
-    int _multiClickTimeout;
-
-
-
-    void _enterInactive() {
-      Serial.printf("Entered Inactive\n");
-      _currentState = PR_INACTIVE;
-    }
-    void _tickInactive() {
-      if (isActive()) {
-        _leaveInactive();
-        _enterOn();
-      }
-    }
-    void _leaveInactive() {
-      Serial.printf("Left INACTIVE ");
-      _clickCount = 0; //So the click count can be retrieved in case I need it
-    }
-
-
-    void _enterOn() {
-      Serial.printf("Entered ON\n");
-      _currentState = PR_ON;
-      _startTime = millis();
-    }
-    void _tickOn() {
-      if (!isActive()) {
-        if (_startTime + 20 < millis()) { // debouncing in case its needed
-          _leaveOn();
-          _enterInactive();
-        } else {
-          _leaveOn();
-          _enterOff();
-        }
-      } else if (_startTime + _multiClickTimeout < millis()) {
-        _leaveOn();
-        _enterLongOn();
-      }
-    }
-    void _leaveOn() {
-      Serial.printf("Left ON ");
-    }
-
-
-    void _enterLongOn() {
-      Serial.printf("Entered LONG_ON\n");
-      _currentState = PR_LONG_ON;
-      _startTime = millis();
-    }
-    void _tickLongOn() {
-      if (!isActive()) {
-        _leaveLongOn();
-        _enterInactive();
-      }
-    }
-    void _leaveLongOn() {
-      Serial.printf("Left LONG_ON ");
-    }
-
-
-
-    void _enterMultiOn() {
-      Serial.printf("Entered MULTI_ON\n");
-      _currentState = PR_MULTI_ON;
-      _startTime = millis();
-    }
-    void _tickMultiOn() {
-      if (!isActive()) {
-        if (_startTime + 20 > millis()) {
-          _clickCount--; // debouncing
-        }
-        _leaveMultiOn();
-        _enterOff();
-      }
-    }
-    void _leaveMultiOn() {
-      Serial.printf("Left MULTI_ON ");
-    }
-
-
-
-    void _enterOff() {
-      Serial.printf("Enter OFF\n");
-      _currentState = PR_OFF;
-      _startTime = millis();
-      _clickCount++;
-    }
-    void _tickOff() {
-      if (isActive()) {
-        _leaveOff();
-        _enterMultiOn();
-      } else if (_startTime + _multiClickTimeout < millis()) {
-        _leaveOff();
-        _enterInactive();
-      }
-    }
-    void _leaveOff() {
-      Serial.printf("Left OFF ");
-    }
+    //    enum STATE {
+    //      PR_INACTIVE,
+    //      PR_ON,
+    //      PR_LONG_ON,
+    //      PR_MULTI_ON,
+    //      PR_OFF
+    //    };
+    //    STATE _currentState = PR_INACTIVE;
+    //    int _clickCount = 0;
+    //    int _startTime;
+    //    int _pressTimeout;
+    //    int _multiClickTimeout;
+    //
+    //
+    //
+    //    void _enterInactive() {
+    //      Serial.printf("Entered Inactive\n");
+    //      _currentState = PR_INACTIVE;
+    //    }
+    //    void _tickInactive() {
+    //      if (isActive()) {
+    //        _leaveInactive();
+    //        _enterOn();
+    //      }
+    //    }
+    //    void _leaveInactive() {
+    //      Serial.printf("Left INACTIVE ");
+    //      _clickCount = 0; //So the click count can be retrieved in case I need it
+    //    }
+    //
+    //
+    //    void _enterOn() {
+    //      Serial.printf("Entered ON\n");
+    //      _currentState = PR_ON;
+    //      _startTime = millis();
+    //    }
+    //    void _tickOn() {
+    //      if (!isActive()) {
+    //        if (_startTime + 20 < millis()) { // debouncing in case its needed
+    //          _leaveOn();
+    //          _enterInactive();
+    //        } else {
+    //          _leaveOn();
+    //          _enterOff();
+    //        }
+    //      } else if (_startTime + _multiClickTimeout < millis()) {
+    //        _leaveOn();
+    //        _enterLongOn();
+    //      }
+    //    }
+    //    void _leaveOn() {
+    //      Serial.printf("Left ON ");
+    //    }
+    //
+    //
+    //    void _enterLongOn() {
+    //      Serial.printf("Entered LONG_ON\n");
+    //      _currentState = PR_LONG_ON;
+    //      _startTime = millis();
+    //    }
+    //    void _tickLongOn() {
+    //      if (!isActive()) {
+    //        _leaveLongOn();
+    //        _enterInactive();
+    //      }
+    //    }
+    //    void _leaveLongOn() {
+    //      Serial.printf("Left LONG_ON ");
+    //    }
+    //
+    //
+    //
+    //    void _enterMultiOn() {
+    //      Serial.printf("Entered MULTI_ON\n");
+    //      _currentState = PR_MULTI_ON;
+    //      _startTime = millis();
+    //    }
+    //    void _tickMultiOn() {
+    //      if (!isActive()) {
+    //        if (_startTime + 20 > millis()) {
+    //          _clickCount--; // debouncing
+    //        }
+    //        _leaveMultiOn();
+    //        _enterOff();
+    //      }
+    //    }
+    //    void _leaveMultiOn() {
+    //      Serial.printf("Left MULTI_ON ");
+    //    }
+    //
+    //
+    //
+    //    void _enterOff() {
+    //      Serial.printf("Enter OFF\n");
+    //      _currentState = PR_OFF;
+    //      _startTime = millis();
+    //      _clickCount++;
+    //    }
+    //    void _tickOff() {
+    //      if (isActive()) {
+    //        _leaveOff();
+    //        _enterMultiOn();
+    //      } else if (_startTime + _multiClickTimeout < millis()) {
+    //        _leaveOff();
+    //        _enterInactive();
+    //      }
+    //    }
+    //    void _leaveOff() {
+    //      Serial.printf("Left OFF ");
+    //    }
 
   public:
     PRBoxController(int PRBoxPin) {
       _pin = PRBoxPin;
       pinMode(_pin, INPUT);
-      _sampleMax = 20;
-      _pressTimeout = 1000;
-      _multiClickTimeout = 1000;
+      _sampleMax = 1;
+      //      _pressTimeout = 1000;
+      //      _multiClickTimeout = 1000;
+    }
+
+    int getRawValue() {
+      return analogRead(_pin);
     }
 
     int getValue() {
-      return analogRead(_pin);
+      return _lastValue;
     }
 
     int isActive() { // TODO: recheck this IDK if I have the right comparison
@@ -200,23 +204,31 @@ class PRBoxController {
 
     void tick() {
       _tickSampler();
-      switch (_currentState) {
+      //      switch (_currentState) {
+      //
+      //        case PR_INACTIVE:
+      //          _tickInactive();
+      //          break;
+      //        case PR_ON:
+      //          _tickOn();
+      //          break;
+      //        case PR_LONG_ON:
+      //          _tickLongOn();
+      //          break;
+      //        case PR_MULTI_ON:
+      //          _tickMultiOn();
+      //          break;
+      //        case PR_OFF:
+      //          _tickOff();
+      //          break;
+      //      }
+    }
 
-        case PR_INACTIVE:
-          _tickInactive();
-          break;
-        case PR_ON:
-          _tickOn();
-          break;
-        case PR_LONG_ON:
-          _tickLongOn();
-          break;
-        case PR_MULTI_ON:
-          _tickMultiOn();
-          break;
-        case PR_OFF:
-          _tickOff();
-          break;
-      }
+    void setHighToCurrent() {
+      _highSetting = _lastValue;
+    }
+
+    void setLowToCurrent() {
+      _lowSetting = _lastValue;
     }
 };
