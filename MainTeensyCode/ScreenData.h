@@ -6,7 +6,7 @@
 #include "Timer.h"
 
 const int SCREEN_WIDTH = 128;
-const int SCREEN_HEIGHT = 32;
+const int SCREEN_HEIGHT = 64;
 const int SCREEN1_ADDRESS = 0x3C;
 const int SCREEN2_ADDRESS = 0x3D;
 const int SCREEN_REFRESH_RATE = 20; // How many times per second

@@ -1,19 +1,29 @@
-#include "PRBoxController.h"
-#include "Timer.h"
 
-PRBoxController yellowBox(17);
-PRBoxController greenBox(20);
-PRBoxController grayBox(21);
-PRBoxController blueBox(22);
-PRBoxController orangeBox(23);
+#include "Menu.h"
+#include "EncoderData.h"
+#include "ScreenData.h"
+#include "PRBoxData.h"
+
 
 void setup() {
-  Serial.printf("Raw, sample\n");
+  setupEncoder();
+  setupScreen();
+  setupMenu();
 }
 
 void loop() {
-//  static Timer timer(1000/4);
-  greenBox.tick();
-  Serial.printf("%d,%d\n", greenBox.getRawValue(), greenBox.getValue());
-  delay(10);
+  loopEncoder();
+  loopPRBoxes();
+  loopMenu();
+  loopScreen();
+
+  
+  static String lastYellowStateChange = yellowBox.getLastStateChange();
+
+  String curYellowStateChange = yellowBox.getLastStateChange();
+
+  if (lastYellowStateChange != curYellowStateChange) {
+    Serial.printf("%s\n", curYellowStateChange.c_str());
+    lastYellowStateChange = curYellowStateChange;
+  }
 }

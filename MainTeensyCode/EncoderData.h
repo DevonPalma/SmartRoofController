@@ -15,28 +15,28 @@ OneButton myEncoderButton(ENCODER_BUTTON);
 
 
 enum ENCODER_COLOR {
-  BLACK,
-  RED,
-  GREEN,
-  YELLOW,
+  ENC_BLACK,
+  ENC_RED,
+  ENC_GREEN,
+  ENC_YELLOW,
 };
 
 
 void setEncoderColor(int color) {
   switch (color) {
-    case BLACK:
+    case ENC_BLACK:
       digitalWrite(ENCODER_RED, LOW);
       digitalWrite(ENCODER_GREEN, LOW);
       break;
-    case RED:
+    case ENC_RED:
       digitalWrite(ENCODER_RED, HIGH);
       digitalWrite(ENCODER_GREEN, LOW);
       break;
-    case GREEN:
+    case ENC_GREEN:
       digitalWrite(ENCODER_RED, LOW);
       digitalWrite(ENCODER_GREEN, HIGH);
       break;
-    case YELLOW:
+    case ENC_YELLOW:
       digitalWrite(ENCODER_RED, HIGH);
       digitalWrite(ENCODER_GREEN, HIGH);
       break;
@@ -58,7 +58,7 @@ void clampEncoder(int min, int max) {
 void setupEncoder() {
   pinMode(ENCODER_RED, OUTPUT);
   pinMode(ENCODER_GREEN, OUTPUT);
-  setEncoderColor(RED);
+  setEncoderColor(ENC_RED);
 }
 
 void loopEncoder() {

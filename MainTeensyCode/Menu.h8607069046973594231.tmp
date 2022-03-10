@@ -4,7 +4,6 @@
 #include "ScreenData.h"
 #include "EncoderData.h"
 #include "PRBoxData.h"
-#include "Timer.h"
 
 /*
    main menu:
@@ -65,8 +64,6 @@ enum MENU_STATES {
 };
 
 MENU_STATES currentMenuState = EXPLORER;
-
-Timer menuDisplayTimer;
 
 int prbExplorerIndex = 0;
 int prbSettingsIndex = 0;
@@ -186,39 +183,28 @@ void tickAllSettings() {
   }
 
 
-
-  // return to EXPLORER state if the button is double clicked
-  if (controllerDoubleClicked) {
-    currentMenuState = EXPLORER;
-    return;
-  }
-
-  if (controllerLongClicked) {
-
-    switch (prbAllSettingsIndex) {
-      case ALL_SETTINGS_LASER_OFF:
-        yellowBox.setHighToCurrent();
-        greenBox.setHighToCurrent();
-        grayBox.setHighToCurrent();
-        blueBox.setHighToCurrent();
-        orangeBox.setHighToCurrent();
-        break;
-      case ALL_SETTINGS_LASER_YELLOW:
-        int yellowDif = yellowBox.getHigh() - yellowBox.getValue();
-        yellowBox.setLowToCurrent();
-        greenBox.setLow(greenBox.getHigh() - yellowDif);
-        grayBox.setLow(grayBox.getHigh() - yellowDif);
-        blueBox.setLow(blueBox.getHigh() - yellowDif);
-        orangeBox.setLow(orangeBox.getHigh() - yellowDif);
-        break;
-      case ALL_SETTINGS_RESET:
-        yellowBox.setToDefault();
-        greenBox.setToDefault();
-        grayBox.setToDefault();
-        blueBox.setToDefault();
-        orangeBox.setToDefault();
-        break;
-    }
+  switch (prbAllSettingsIndex) {
+    case ALL_SETTINGS_LASER_OFF:
+      yellowBox.setHighToCurrent();
+      greenBox.setHighToCurrent();
+      grayBox.setHighToCurrent();
+      blueBox.setHighToCurrent();
+      orangeBox.setHighToCurrent();
+      break;
+    case ALL_SETTINGS_LASER_YELLOW:
+      int yellowDif = yellowBox.getHigh() - yellowBox.getValue();
+      greenBox.setLow(greenBox.getHigh() - yellowDif);
+      grayBox.setLow(grayBox.getHigh() - yellowDif);
+      blueBox.setLow(blueBox.getHigh() - yellowDif);
+      orangeBox.setLow(orangeBox.getHigh() - yellowDif);
+      break;
+    case ALL_SETTINGS_RESET:
+      yellowBox.setToDefault();
+      greenBox.setToDefault();
+      grayBox.setToDefault();
+      blueBox.setToDefault();
+      orangeBox.setToDefault();
+      break;
   }
 }
 
@@ -277,8 +263,6 @@ void _drawAllSettingsOptions() {
     display1.setCursor(MENU_SPLIT + 2, 8 + 8 * i);
     display1.printf("%s\n", PRB_ALL_SETTINGS_ITEMS[i].c_str());
   }
-
-
 }
 
 void _resetDisplay() {
@@ -293,60 +277,26 @@ void _resetDisplay() {
   display2.setTextSize(1);
 }
 
-
-
-void _draw2QuickSettings() {
+void _drawQuickSettings() {
   switch (prbExplorerIndex) {
     case EXPLORER_ALL:
-      display2.printf(" Y: %d < %d = %s\n", yellowBox.getValue(), yellowBox.getMid(), yellowBox.isActive() ? "ON" : "OFF");
-      display2.printf("Gn: %d < %d = %s\n", greenBox.getValue(), greenBox.getMid(), greenBox.isActive() ? "ON" : "OFF");
-      display2.printf("Gy: %d < %d = %s\n", grayBox.getValue(), grayBox.getMid(), grayBox.isActive() ? "ON" : "OFF");
-      display2.printf(" B: %d < %d = %s\n", blueBox.getValue(), blueBox.getMid(), blueBox.isActive() ? "ON" : "OFF");
-      display2.printf(" O: %d < %d = %s\n", orangeBox.getValue(), orangeBox.getMid(), orangeBox.isActive() ? "ON" : "OFF");
+      display2.printf("ALL SETTINGS");
       break;
     default:
       PRBoxController* activeBox = _getCurrentSelectedBox();
-      display2.printf("Current  : %d\n", activeBox->getValue());
-      display2.printf("Laser Off: %d\n", activeBox->getHigh());
-      display2.printf("Laser On : %d\n", activeBox->getLow());
-      display2.printf("State    : %s\n", activeBox->isActive() ? "on" : "off");
+      display2.printf("Current: % d\n", activeBox->getValue());
+      display2.printf("Laser On: %d\n", activeBox->getHigh());
+      display2.printf("Laser Off: %d\n", activeBox->getLow());
+      display2.printf("is %s\n", activeBox->isActive() ? "on" : "off");
       break;
   }
 }
-
-void _draw2DetailedAllSettings() {
-
-  switch (prbAllSettingsIndex) {
-    case ALL_SETTINGS_LASER_OFF:
-      display2.printf(" Y: %d -> High(%d)\n", yellowBox.getValue(), yellowBox.getHigh());
-      display2.printf("Gn: %d -> High(%d)\n", greenBox.getValue(), greenBox.getHigh());
-      display2.printf("Gy: %d -> High(%d)\n", grayBox.getValue(), grayBox.getHigh());
-      display2.printf(" B: %d -> High(%d)\n", blueBox.getValue(), blueBox.getHigh());
-      display2.printf(" O: %d -> High(%d)\n", orangeBox.getValue(), orangeBox.getHigh());
-      break;
-    case ALL_SETTINGS_LASER_YELLOW:
-      int diff = yellowBox.getHigh() - yellowBox.getValue();
-      display2.printf("Y: off - cur = diff\n");
-      display2.printf("  %d - %d = %d\n\n", yellowBox.getHigh(), yellowBox.getValue(), diff);
-
-      display2.printf(" Y: %d -> ON(%d) \n", yellowBox.getValue(), yellowBox.getLow());
-      display2.printf("Gn: %d -> ON(%d) \n", greenBox.getHigh() - diff, greenBox.getLow());
-      display2.printf("Gy: %d -> ON(%d) \n", grayBox.getHigh() - diff, grayBox.getLow());
-      display2.printf(" B: %d -> ON(%d) \n", blueBox.getHigh() - diff, blueBox.getLow());
-      display2.printf(" O: %d -> ON(%d) \n", orangeBox.getHigh() - diff, orangeBox.getLow());
-      break;
-    case ALL_SETTINGS_RESET:
-      display2.printf("NOT IMPLEMENTED\n");
-      break;
-  }
-}
-
 
 void drawExplorer() {
   _resetDisplay();
   _drawMenuTitle();
   _drawExplorerOptions();
-  _draw2QuickSettings();
+  _drawQuickSettings();
 }
 
 void drawSettings() {
@@ -354,48 +304,55 @@ void drawSettings() {
   _drawMenuTitle();
   _drawExplorerOptions();
   _drawSettingsOptions();
-  _draw2QuickSettings();
 }
+
+
+void drawActiveValues() {
+  
+}
+
+
+//
+//const int PRB_ALL_SETTINGS_COUNT = 3;
+//const String PRB_ALL_SETTINGS_ITEMS[] = {"All lasers off", "Scale to yellow", "reset"};
+//
+//enum PRB_ALL_SETTINGS_IDS {
+//  ALL_SETTINGS_LASER_OFF,
+//  ALL_SETTINGS_LASER_YELLOW,
+//  ALL_SETTINGS_RESET
+//};
+//int prbAllSettingsIndex = 0;
 
 void drawAllSettings() {
-  _resetDisplay();
-  _drawMenuTitle();
-  _drawExplorerOptions();
-  _drawAllSettingsOptions();
-  _draw2DetailedAllSettings();
+  display1.setCursor(MENU_SPLIT + 3, 8);
+  display1.setTextColor(SSD1306_WHITE, SSD1306_BLACK);
+
 }
-
-
 
 void setupMenu() {
   myEncoderButton.attachClick(menuClick);
   myEncoderButton.attachDoubleClick(menuDoubleClick);
   myEncoderButton.attachDuringLongPress(menuLongPressLoop);
-
-  menuDisplayTimer.setDuration(1000 / 40);
 }
 
 void loopMenu() {
-  if (menuDisplayTimer.isDone()) {
-    menuDisplayTimer.start();
-    tickController();
-    switch (currentMenuState) {
-      case EXPLORER:
-        tickExplorer();
-        drawExplorer();
-        break;
-      case SETTINGS:
-        tickSettings();
-        drawSettings();
-        break;
-      case ALL_SETTINGS:
-        tickAllSettings();
-        drawAllSettings();
-    }
-    controllerClicked = false;
-    controllerDoubleClicked = false;
-    controllerLongClicked = false;
+  tickController();
+  switch (currentMenuState) {
+    case EXPLORER:
+      tickExplorer();
+      drawExplorer();
+      break;
+    case SETTINGS:
+      tickSettings();
+      drawSettings();
+      break;
+    case ALL_SETTINGS:
+      tickAllSettings();
+      drawAllSettings();
   }
+  controllerClicked = false;
+  controllerDoubleClicked = false;
+  controllerLongClicked = false;
 }
 
 
