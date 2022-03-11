@@ -148,7 +148,9 @@ class PresentationController {
           }
           break;
         case P_PRESENTING:
-          sendPrevSlide();
+          if (!automode->isOn()) {
+            sendPrevSlide();
+          }
           break;
       }
     }

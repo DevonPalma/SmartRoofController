@@ -4,6 +4,7 @@
 #include "Presentation.h"
 #include <Adafruit_BME280.h>
 #include "AutomaticController.h"
+#include "Timer.h"
 
 
 const int ENCODER_PIN_A = 3;
@@ -42,6 +43,7 @@ PresentationController presenter(automode);
 
 Adafruit_BME280 myBME;
 
+Timer delayTimer;
 
 void setup() {
   setupEthernet();
@@ -53,6 +55,8 @@ void setup() {
     Serial.printf("BME Did not initialize on address 0x02X\n", BME_ADDRESS);
     while (true);
   }
+
+  delayTimer.setDuration(3000);
 }
 
 void loop() {
@@ -67,7 +71,7 @@ void loop() {
 // If they are setup correctly and I am in the right menu, I go ahead and send
 // the code to the presentation.h which controls sub-functions
 void controllerLoop() {
-  bool isPrimed = myMenu.getActiveState() == EXPLORER;
+  bool isPrimed = myMenu.getActiveState() == EXPLORER ;
   for (int i = 0; i < 5; i++) {
     boxControllers[i]->tick();
     if (!boxControllers[i]->isCalibrated()) {
@@ -77,9 +81,21 @@ void controllerLoop() {
   // if the menu isn't in explorer mode or one of the buttons isn't callibrated, go ahead and skip over the last part of the loop
   if (!isPrimed) {
    return; 
+  } 
+  
+  static int lastStates[5];
+  if (!delayTimer.isRunning()) {
+    delayTimer.start();
+    for (int i = 0; i < 5; i++) {
+      lastStates[i] = OFF_INACTIVE;
+    }
+    return;
+  } 
+  
+  if (!delayTimer.isDone()) {
+    return;
   }
 
-  static int lastStates[5];
 
   for (int i = 0; i < 5; i++) {
     int curState = boxControllers[i]->getLastStateChange();
