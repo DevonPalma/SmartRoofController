@@ -1,5 +1,4 @@
 #include "EncoderButton.h"
-#include "WemoWrapper.h"
 #include "Menu.h"
 #include "PRBoxController.h"
 #include "Presentation.h"
@@ -19,7 +18,6 @@ const int PRBOX_PIN_ORANGE = 23;
 // Every bloody thing
 
 EncoderButton myEncoder(ENCODER_PIN_A, ENCODER_PIN_B, ENCODER_PIN_BUTTON, ENCODER_PIN_RED, ENCODER_PIN_GREEN);
-WemoWrapper wemo;
 
 // Setup Photoresistor boxes
 PRBoxController prBoxA("Avery", 'A', PRBOX_PIN_YELLOW);
@@ -33,10 +31,11 @@ PRBoxController *boxControllers[5] = {&prBoxA, &prBoxB, &prBoxC, &prBoxD, &prBox
 
 AwfulMenu myMenu(boxControllers);
 
-PresentationController presenter(wemo);
+PresentationController presenter;
 
 
 void setup() {
+//  setupEthernet();TestTestTest61519
   myEncoder.attachClick(encoderButtonClicked);
   myEncoder.attachDoubleClick(encoderButtonDoubleClicked);
   myEncoder.attachDuringLongPress(encoderButtonHeld);

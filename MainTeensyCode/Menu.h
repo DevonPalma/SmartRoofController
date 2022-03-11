@@ -63,7 +63,7 @@ class AwfulMenu {
     Adafruit_SSD1306 *display1;
     Adafruit_SSD1306 *display2;
 
-    PRBoxController *boxes;
+    PRBoxController **boxes;
 
 
 
@@ -81,29 +81,29 @@ class AwfulMenu {
 
 
     void _setLaserToOff(int i) {
-      boxes[i].calibrateLaserOff();
+      boxes[i]->calibrateLaserOff();
     }
 
     void _setLaserToOn(int i) {
-      boxes[i].calibrateLaserOn();
+      boxes[i]->calibrateLaserOn();
     }
 
     void _setAllLasersOff() {
       for (int i = 0; i < 5; i++ ) {
-        boxes[i].calibrateLaserOff();
+        boxes[i]->calibrateLaserOff();
       }
     }
 
     void _scaleToA() {
-      int diff = boxes[0].getLaserOffValue() - boxes[0].getValue();
+      int diff = boxes[0]->getLaserOffValue() - boxes[0]->getValue();
       for (int i = 0; i < 5; i++ ) {
-        boxes[i].setLaserOn(boxes[i].getLaserOffValue() - diff);
+        boxes[i]->setLaserOn(boxes[i]->getLaserOffValue() - diff);
       }
     }
 
     void _resetAllLasers() {
       for (int i = 0; i < 5; i++ ) {
-        boxes[i].setToDefault();
+        boxes[i]->setToDefault();
       }
     }
 
@@ -177,13 +177,13 @@ class AwfulMenu {
             case 0:
               display2->printf("   ON  CUR  OFF\n");
               for (int i = 0; i < 5; i++) {
-                bool isBoxActive = boxes[i].isActive();
-                display2->printf("%c: %d %c %d %c %d\n", boxes[i].getSymbol(), boxes[i].getLaserOnValue(),
-                                 isBoxActive ? '<' : ' ', boxes[i].getValue(), isBoxActive ? ' ' : '>', boxes[i].getLaserOffValue());
+                bool isBoxActive = boxes[i]->isActive();
+                display2->printf("%c: %d %c %d %c %d\n", boxes[i]->getSymbol(), boxes[i]->getLaserOnValue(),
+                                 isBoxActive ? '<' : ' ', boxes[i]->getValue(), isBoxActive ? ' ' : '>', boxes[i]->getLaserOffValue());
               }
               break;
             default:
-              PRBoxController* activeBox = &boxes[explorerCursor - 1];
+              PRBoxController* activeBox = boxes[explorerCursor - 1];
               display2->printf("Current  : %d\n", activeBox->getValue());
               display2->printf("Laser Off: %d\n", activeBox->getLaserOffValue());
               display2->printf("Laser On : %d\n", activeBox->getLaserOnValue());
@@ -196,22 +196,22 @@ class AwfulMenu {
             case 2:
               display2->printf("   ON  CUR  OFF\n");
               for (int i = 0; i < 5; i++) {
-                bool isBoxActive = boxes[i].isActive();
-                display2->printf("%c: %d %c %d %c %d\n", boxes[i].getSymbol(), boxes[i].getLaserOnValue(),
-                                 isBoxActive ? '<' : ' ', boxes[i].getValue(), isBoxActive ? ' ' : '>', boxes[i].getLaserOffValue());
+                bool isBoxActive = boxes[i]->isActive();
+                display2->printf("%c: %d %c %d %c %d\n", boxes[i]->getSymbol(), boxes[i]->getLaserOnValue(),
+                                 isBoxActive ? '<' : ' ', boxes[i]->getValue(), isBoxActive ? ' ' : '>', boxes[i]->getLaserOffValue());
               }
               break;
             case 0:
               for (int i = 0; i < 5; i++) {
-                display2->printf("%c: %d -> Off(%d)\n", boxes[i].getSymbol(), boxes[i].getValue(), boxes[i].getLaserOffValue());
+                display2->printf("%c: %d -> Off(%d)\n", boxes[i]->getSymbol(), boxes[i]->getValue(), boxes[i]->getLaserOffValue());
               }
               break;
             case 1:
-              int diff = boxes[0].getLaserOffValue() - boxes[0].getValue();
-              display2->printf("%c: off - cur = diff\n", boxes[0].getSymbol());
-              display2->printf("  %d - %d = %d\n\n", boxes[0].getLaserOffValue(), boxes[0].getValue(), diff);
+              int diff = boxes[0]->getLaserOffValue() - boxes[0]->getValue();
+              display2->printf("%c: off - cur = diff\n", boxes[0]->getSymbol());
+              display2->printf("  %d - %d = %d\n\n", boxes[0]->getLaserOffValue(), boxes[0]->getValue(), diff);
               for (int i = 0; i < 5; i++) {
-                display2->printf("%c: %d -> ON(%d)\n", boxes[i].getSymbol(), boxes[i].getLaserOffValue() - diff, boxes[i].getLaserOnValue());
+                display2->printf("%c: %d -> ON(%d)\n", boxes[i]->getSymbol(), boxes[i]->getLaserOffValue() - diff, boxes[i]->getLaserOnValue());
               }
 
               break;
@@ -224,8 +224,8 @@ class AwfulMenu {
 
   public:
 
-    AwfulMenu(PRBoxController *allBoxes[]) {
-      boxes = *allBoxes;
+    AwfulMenu(PRBoxController **allBoxes) {
+      boxes = allBoxes;
       display1 = new Adafruit_SSD1306(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire);
       if (!display1->begin(SSD1306_SWITCHCAPVCC, SCREEN1_ADDRESS)) {
         Serial.printf("SSD1306 allocation failed");

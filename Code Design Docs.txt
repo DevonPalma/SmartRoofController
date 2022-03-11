@@ -1,21 +1,16 @@
 State INTRO
-	YellowBox clicked
-		Run ToggleTea
+	Avery clicked
+		move to previous slide
 	GreenBox Clicked
-		Run ToggleRockMode
+		enableTea
 	GrayBox clicked
-		run ToggleCalmMode
-	BlueBox clicked
-		Switch to state 2
-		
-		
-State PRESENTING
+		cycleMoods
+			rock -> calm -> normal
+			turn all lights to blue
 	OrangeBox clicked
+		toggleRockMode
+	Edith clicked
 		Move to next slide
-	YellowBox clicked
-		Move to previous slide
-	Gray double clicked
-		Switch to State PLAYING
 
 
 State PLAYING
@@ -26,3 +21,15 @@ State PLAYING
 		
 	
 	
+	
+moveToPreviousSlide
+	CTRL + ALT + K
+
+moveToNextSlide
+	CTRL + ALT + L
+	
+playCalmMusic
+	CTRL + ALT + O
+	
+playRockMusic
+	CTRL + ALT + P
