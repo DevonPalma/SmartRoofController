@@ -1,6 +1,4 @@
-//#include "GlobalStateMachine.h"
 #include "EncoderButton.h"
-//#include "ScreenData.h"
 #include "WemoWrapper.h"
 #include "Menu.h"
 #include "PRBoxController.h"
@@ -32,7 +30,7 @@ PRBoxController prBoxE("Edith", 'E', PRBOX_PIN_ORANGE);
 // Put photoresistor boxes in a nice lil array
 PRBoxController *boxControllers[5] = {&prBoxA, &prBoxB, &prBoxC, &prBoxD, &prBoxE};
 
-AwfulMenu myMenu;
+AwfulMenu myMenu(boxControllers);
 
 
 void setup() {
@@ -42,9 +40,13 @@ void setup() {
 }
 
 void loop() {
+  for (int i = 0; i < 5; i++) {
+    boxControllers[i]->tick();
+  }
   myEncoder.tick();
   myMenu.handleRotationInput(myEncoder.read());
   myMenu.tick();
+  
 }
 
 

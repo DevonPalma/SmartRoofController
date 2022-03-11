@@ -1,4 +1,5 @@
-
+#ifndef _PR_BOX_CONTROLLER_H_
+#define _PR_BOX_CONTROLLER_H_
 #include <math.h>
 /*
    PRBoxController
@@ -351,3 +352,5 @@ class PRBoxController {
 
     
 };
+
+#endif

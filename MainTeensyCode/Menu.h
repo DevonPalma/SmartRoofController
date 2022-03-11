@@ -1,12 +1,7 @@
 #ifndef _MENU_H_
 #define _MENU_H_
 
-//#include "GlobalStateMachine.h"
-//#include "ScreenData.h"
-//#include "EncoderData.h"
-//#include "PRBoxData.h"
-//#include "Timer.h"
-
+#include "PRBoxController.h"
 
 #include <Adafruit_SSD1306.h>
 #include <Wire.h>
@@ -68,6 +63,10 @@ class AwfulMenu {
     Adafruit_SSD1306 *display1;
     Adafruit_SSD1306 *display2;
 
+    PRBoxController *boxes;
+
+
+
 
     int clamp(int val, int min, int max) {
       if (val < min) {
@@ -82,24 +81,30 @@ class AwfulMenu {
 
 
     void _setLaserToOff(int i) {
-      Serial.printf("SET LASER %d OFF\n", i);
+      boxes[i].calibrateLaserOff();
     }
 
     void _setLaserToOn(int i) {
-      Serial.printf("SET LASER %d ON\n", i);
+      boxes[i].calibrateLaserOn();
     }
 
     void _setAllLasersOff() {
-      Serial.printf("SET ALL LASER OFF\n");
+      for (int i = 0; i < 5; i++ ) {
+        boxes[i].calibrateLaserOff();
+      }
     }
 
     void _scaleToA() {
-      Serial.printf("Scale to A\n");
+      int diff = boxes[0].getLaserOffValue() - boxes[0].getValue();
+      for (int i = 0; i < 5; i++ ) {
+        boxes[i].setLaserOn(boxes[i].getLaserOffValue() - diff);
+      }
     }
 
     void _resetAllLasers() {
-      Serial.printf("Reset all lasers\n");
-
+      for (int i = 0; i < 5; i++ ) {
+        boxes[i].setToDefault();
+      }
     }
 
 
@@ -160,14 +165,60 @@ class AwfulMenu {
       _pushScreen(display1);
     }
 
+
+
     void _drawScreen2() {
       _resetScreen(display2);
+
+      switch (currentState) {
+        case EXPLORER:
+        case GENERAL_SETTINGS:
+          switch (explorerCursor) {
+            case 0:
+              display2->printf("   ON  CUR  OFF\n");
+              for (int i = 0; i < 5; i++) {
+                bool isBoxActive = boxes[i].isActive();
+                display2->printf("%c: %d %c %d %c %d\n", boxes[i].getSymbol(), boxes[i].getLaserOnValue(),
+                                 isBoxActive ? '<' : ' ', boxes[i].getValue(), isBoxActive ? ' ' : '>', boxes[i].getLaserOffValue());
+              }
+              break;
+            default:
+              PRBoxController* activeBox = &boxes[explorerCursor - 1];
+              display2->printf("Current  : %d\n", activeBox->getValue());
+              display2->printf("Laser Off: %d\n", activeBox->getLaserOffValue());
+              display2->printf("Laser On : %d\n", activeBox->getLaserOnValue());
+              display2->printf("State    : %s\n", activeBox->isActive() ? "on" : "off");
+              break;
+          }
+          break;
+        case SUPER_SETTINGS:
+          switch (superSettingCursor) {
+            case 0:
+              for (int i = 0; i < 5; i++) {
+                display2->printf("%c: %d -> Off(%d)\n", boxes[i].getSymbol(), boxes[i].getValue(), boxes[i].getLaserOffValue());
+              }
+              break;
+            case 1:
+              int diff = boxes[0].getLaserOffValue() - boxes[0].getValue();
+              display2->printf("%c: off - cur = diff\n", boxes[0].getSymbol());
+              display2->printf("  %d - %d = %d\n\n", boxes[0].getLaserOffValue(), boxes[0].getValue(), diff);
+              for (int i = 0; i < 5; i++) {
+                display2->printf("%c: %d -> ON(%d)\n", boxes[i].getSymbol(), boxes[i].getLaserOffValue() - diff, boxes[i].getLaserOnValue());
+              }
+              break;
+            case 2:
+              display2->printf("NOT IMPLEMENTED\n");
+              break;
+          }
+      }
+
       _pushScreen(display2);
     }
 
   public:
 
-    AwfulMenu() {
+    AwfulMenu(PRBoxController *allBoxes[]) {
+      boxes = *allBoxes;
       display1 = new Adafruit_SSD1306(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire);
       if (!display1->begin(SSD1306_SWITCHCAPVCC, SCREEN1_ADDRESS)) {
         Serial.printf("SSD1306 allocation failed");
