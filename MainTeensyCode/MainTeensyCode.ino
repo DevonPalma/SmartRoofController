@@ -2,6 +2,9 @@
 #include "Menu.h"
 #include "PRBoxController.h"
 #include "Presentation.h"
+#include <Adafruit_BME280.h>
+#include "AutomaticController.h"
+
 
 const int ENCODER_PIN_A = 3;
 const int ENCODER_PIN_B = 2;
@@ -14,6 +17,8 @@ const int PRBOX_PIN_GREEN = 20;
 const int PRBOX_PIN_GRAY = 21;
 const int PRBOX_PIN_BLUE = 22;
 const int PRBOX_PIN_ORANGE = 23;
+
+const int BME_ADDRESS = 0x76;
 
 // Every bloody thing
 
@@ -31,14 +36,23 @@ PRBoxController *boxControllers[5] = {&prBoxA, &prBoxB, &prBoxC, &prBoxD, &prBox
 
 AwfulMenu myMenu(boxControllers);
 
-PresentationController presenter;
+AutomaticController automode(prBoxA);
+
+PresentationController presenter(automode);
+
+Adafruit_BME280 myBME;
 
 
 void setup() {
-//  setupEthernet();TestTestTest61519
+  setupEthernet();
   myEncoder.attachClick(encoderButtonClicked);
   myEncoder.attachDoubleClick(encoderButtonDoubleClicked);
   myEncoder.attachDuringLongPress(encoderButtonHeld);
+
+  if (!myBME.begin(BME_ADDRESS)) {
+    Serial.printf("BME Did not initialize on address 0x02X\n", BME_ADDRESS);
+    while (true);
+  }
 }
 
 void loop() {
@@ -46,8 +60,12 @@ void loop() {
   myEncoder.tick();
   myMenu.handleRotationInput(myEncoder.read());
   myMenu.tick();
+  automode.tick();
 }
 
+// This is in charge of looping over each boxConrtoller and ticking them
+// If they are setup correctly and I am in the right menu, I go ahead and send
+// the code to the presentation.h which controls sub-functions
 void controllerLoop() {
   bool isPrimed = myMenu.getActiveState() == EXPLORER;
   for (int i = 0; i < 5; i++) {

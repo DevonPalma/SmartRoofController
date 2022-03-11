@@ -1,14 +1,16 @@
 State INTRO
 	Avery clicked
 		move to previous slide
-	GreenBox Clicked
-		enableTea
-	GrayBox clicked
+	Brian Clicked
+		toggle automatic mode
+	Chris clicked
 		cycleMoods
 			rock -> calm -> normal
-			turn all lights to blue
-	OrangeBox clicked
-		toggleRockMode
+			
+			rock:
+				turn all lights to red
+				
+	
 	Edith clicked
 		Move to next slide
 

@@ -1,26 +1,26 @@
 #include <SPI.h>
 #include <Ethernet.h>
 #include <mac.h>
-//#include <hue.h>
-//#include <wemo.h>
-
+#include <hue.h>
+#include <wemo.h>
+#include "AutomaticController.h"
 
 EthernetClient client;
 
-//void setupEthernet() {
-//  Serial.printf("Setting up wemo, please wait\n");
-//  if (!Ethernet.begin(mac)) {
-//    Serial.printf("Failed to configure ethernet using DHCP\n");
-//    while (true);
-//  }
-//
-//  Serial.print("My IP address: ");
-//  byte thisbyte;
-//  for (thisbyte = 0; thisbyte < 3; thisbyte++) {
-//    Serial.printf("%i.", Ethernet.localIP()[thisbyte]);
-//  }
-//  Serial.printf("%i\n", Ethernet.localIP()[thisbyte]);
-//}
+void setupEthernet() {
+  Serial.printf("Setting up wemo, please wait\n");
+  if (!Ethernet.begin(mac)) {
+    Serial.printf("Failed to configure ethernet using DHCP\n");
+    while (true);
+  }
+
+  Serial.print("My IP address: ");
+  byte thisbyte;
+  for (thisbyte = 0; thisbyte < 3; thisbyte++) {
+    Serial.printf("%i.", Ethernet.localIP()[thisbyte]);
+  }
+  Serial.printf("%i\n", Ethernet.localIP()[thisbyte]);
+}
 
 enum PRESENTATION_STATES {
   P_INTRO,
@@ -33,6 +33,8 @@ enum PRESENTATION_STATES {
 
 class PresentationController {
     PRESENTATION_STATES currentState;
+    AutomaticController* automode;
+    bool teaTime;
 
     void sendNextSlide() {
       Serial.printf("Sending next slide\n");
@@ -53,6 +55,9 @@ class PresentationController {
     }
 
     void sendOpenSlides() {
+      for (int i = 0; i < 6; i++) {
+        setHue(i, true, 22500, 100, 0);
+      }
       Serial.printf("Sending open slide\n");
       Keyboard.press(KEY_RIGHT_ALT);
       Keyboard.press('j');
@@ -62,6 +67,9 @@ class PresentationController {
     }
 
     void sendOpenCalmMusic() {
+      for (int i = 0; i < 6; i++) {
+        setHue(i, true, 22500, 100, 100);
+      }
       Serial.printf("Sending open calm\n");
       Keyboard.press(KEY_RIGHT_ALT);
       Keyboard.press('p');
@@ -71,6 +79,9 @@ class PresentationController {
     }
 
     void sendOpenRockMusic() {
+      for (int i = 0; i < 6; i++) {
+        setHue(i, true, 0, 100, 100);
+      }
       Serial.printf("Sending open rock\n");
       Keyboard.press(KEY_RIGHT_ALT);
       Keyboard.press('o');
@@ -98,8 +109,9 @@ class PresentationController {
     }
 
   public:
-    PresentationController() {
+    PresentationController(AutomaticController &_automode) {
       currentState = P_PRESENTING;
+      automode = &_automode;
     }
 
     void clicked(int buttonIndex) {
@@ -132,7 +144,7 @@ class PresentationController {
         case P_PLAYING:
           Serial.printf("Turn on all wemo outlets\n");
           for (int i = 0; i < 5; i++) {
-            //            switchON(i);
+            switchON(i);
           }
           break;
         case P_PRESENTING:
@@ -151,10 +163,11 @@ class PresentationController {
         case P_PLAYING:
           Serial.printf("Turn off all hue lights\n");
           for (int i = 0; i < 5; i++) {
-            //            switchOFF(i);
+            switchOFF(i);
           }
           break;
         case P_PRESENTING:
+          automode->toggle();
           break;
       }
     }
@@ -169,7 +182,7 @@ class PresentationController {
         case P_PLAYING:
           Serial.printf("Turn off all hue lights\n");
           for (int i = 0; i < 6; i++) {
-            //            setHue(i, false, 0, 0, 0);
+            setHue(i, false, 0, 0, 0);
           }
           break;
         case P_PRESENTING:
@@ -188,10 +201,19 @@ class PresentationController {
         case P_PLAYING:
           Serial.printf("Turn on all hue lights\n");
           for (int i = 0; i < 6; i++) {
-            //            setHue(i, true, 100, 100, 800);
+            setHue(i, true, 100, 100, 800);
           }
           break;
         case P_PRESENTING:
+          if (teaTime) {
+            Serial.printf("No more tea time\n");
+            teaTime = false;
+            switchOFF(2);
+          } else {
+            Serial.printf("Tea time\n");
+            teaTime = true;
+            switchON(2);
+          }
           break;
       }
     }
