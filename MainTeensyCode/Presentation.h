@@ -35,6 +35,7 @@ class PresentationController {
     PRESENTATION_STATES currentState;
     AutomaticController* automode;
     bool teaTime;
+    int activeHue;
 
     void sendNextSlide() {
       Serial.printf("Sending next slide\n");
@@ -110,7 +111,7 @@ class PresentationController {
 
   public:
     PresentationController(AutomaticController &_automode) {
-      currentState = P_PRESENTING;
+      currentState = P_PLAYING;
       automode = &_automode;
     }
 
@@ -203,7 +204,7 @@ class PresentationController {
         case P_PLAYING:
           Serial.printf("Turn on all hue lights\n");
           for (int i = 0; i < 6; i++) {
-            setHue(i, true, 100, 100, 800);
+            setHue(i, true, activeHue, 255, 255);
           }
           break;
         case P_PRESENTING:
@@ -227,6 +228,13 @@ class PresentationController {
 
     void orangeButtonClicked() {
       switch (currentState) {
+        case P_PLAYING:
+          activeHue = (activeHue + 5000) % 65000;
+          for (int i = 0; i < 6; i++) {
+            setHue(i, true, activeHue, 255, 255);
+          }
+          Serial.printf("New Hue: %d\n", activeHue);
+          break;
         case P_PRESENTING:
           sendNextSlide();
           break;
