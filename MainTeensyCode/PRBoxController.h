@@ -252,7 +252,7 @@ class PRBoxController {
       // set defaults for sampling
       _sampleMax = 7;
       // set defauls for state machine
-      _pressTimeout = 500;
+      _pressTimeout = 1500;
       _multiClickTimeout = 1000;
       setToDefault();
     }

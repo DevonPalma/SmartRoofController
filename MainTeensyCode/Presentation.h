@@ -1,4 +1,4 @@
-#include "WemoData.h"
+#include "WemoWrapper.h"
 
 enum PRESENTATION_STATES {
   P_INTRO,
@@ -9,10 +9,12 @@ enum PRESENTATION_STATES {
 
 
 class PresentationController {
+    WemoWrapper* _wrapper;
     PRESENTATION_STATES currentState;
 
   public:
-    PresentationController() {
+    PresentationController(WemoWrapper wrapper) {
+      _wrapper = &wrapper;
       currentState = P_PLAYING;
     }
 
@@ -36,7 +38,9 @@ class PresentationController {
       switch (currentState) {
         case P_PLAYING:
           Serial.printf("Turn on all wemo outlets\n");
-          turnOnAllWemo();
+          for (int i = 0; i < 5; i++) {
+            _wrapper->turnOn(i);
+          }
           break;
       }
     }
@@ -50,7 +54,9 @@ class PresentationController {
       switch (currentState) {
         case P_PLAYING:
           Serial.printf("Turn off all wemo outlets\n");
-          turnOffAllWemo();
+          for (int i = 0; i < 5; i++) {
+            _wrapper->turnOff(i);
+          }
           break;
       }
     }

@@ -9,9 +9,9 @@ const int WEMO_COUNT = 5;
 const int WEMO_PORT = 49153;
 const char *WEMO_IPS[5] = {"192.168.1.4", "192.168.1.7", "192.168.1.6", "192.168.1.8", "192.168.1.16"};
 
+EthernetClient client;
 
 class WemoWrapper {
-    EthernetClient client;
     bool wemoStates[WEMO_COUNT];
 
     void _sendTurnOnPacket(int wemoIndex) {
@@ -70,23 +70,25 @@ class WemoWrapper {
       Serial.printf("%i\n", Ethernet.localIP()[thisbyte]);
     }
 
+    // IDK why the logic wasn't working, but it wasn't .-. so I disabled it
     void turnOn(int wemoIndex) {
-      if (wemoStates[wemoIndex]) {
-        Serial.printf("WEMO > Couldn't turn on %i, already on\n", wemoIndex);
-      }
-      wemoStates[wemoIndex] = true;
+//      if (wemoStates[wemoIndex]) {
+//        Serial.printf("WEMO > Couldn't turn on %i, already on\n", wemoIndex);
+//        return;
+//      }
+//      wemoStates[wemoIndex] = true;
       Serial.printf("WEMO > Turning on %i \n", wemoIndex);
 
       _sendTurnOnPacket(wemoIndex);
     }
 
     void turnOff(int wemoIndex) {
-      if (wemoStates[wemoIndex]) {
-        Serial.printf("WEMO > Couldn't turn off %i, already off\n", wemoIndex);
-      }
-      wemoStates[wemoIndex] = true;
+//      if (!wemoStates[wemoIndex]) {
+//        Serial.printf("WEMO > Couldn't turn off %i, already off\n", wemoIndex);
+//        return;
+//      }
+//      wemoStates[wemoIndex] = false;
       Serial.printf("WEMO > Turning off %i \n", wemoIndex);
-
       _sendTurnOffPacket(wemoIndex);
     }
 };
