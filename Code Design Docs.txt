@@ -1,97 +1,28 @@
-Menu State Machine
-
-
-States = ["MAIN", "SUBMENU"]
-
-int mainMenuItemCount = 5;
-String mainMenuItems[mainMenuItemCount] = ["Box1", "Box2", "Box3", "Box4", "Box5"]
-
-int subMenuItemCount = 2;
-String subMenuItems[subMenuItemCount] = ["setMax = cur", "setMin = cur"]
-
-int mainMenuIndex;
-int subMenuIndex;
-
-int indexOffset;
-
-void tickController() {
-	static int lastEncoderVal = encoder.getVal()
-	
-	int curEncoderVal = encoder.getVal()
-	
-	if (curEncoderVal != lastEncoderVal) {
-		indexOffset = curEncoderVal - lastEncoderVal
-		lastEncoderVal = curEncoderVal
-	}
-}
-
-
-void tickMainMenu() {
-	mainMenuIndex += indexOffset
-	if (mainMenuIndex < 0)
-		mainMenuIndex = 0
-	if (mainMenuIndex > mainMenuItemCount)
-		mainMenuIndex = mainMenuItemCount
+State INTRO
+	YellowBox clicked
+		Run ToggleTea
+	GreenBox Clicked
+		Run ToggleRockMode
+	GrayBox clicked
+		run ToggleCalmMode
+	BlueBox clicked
+		Switch to state 2
 		
-	if encoderWasPressed
-		switchState("SUBMENU")
-}
+		
+State PRESENTING
+	OrangeBox clicked
+		Move to next slide
+	YellowBox clicked
+		Move to previous slide
+	Gray double clicked
+		Switch to State PLAYING
 
 
-void tickSubMenu() {
-	subMenuIndex += indexOffset
-	if (subMenuIndex < 0) 
-		subMenuIndex = 0
-	if (subMenuIndex > subMenuItemCount)
-		subMenuIndex = subMenuItemCount
+State PLAYING
+	YellowBox Clicked
+		Turn on all wemos
+	GreenButton Clicked
+		Turn off all wemos
 		
 	
-	if encoderWasDoublePressed
-		switchState("MAINMENU") -- go back in the menu
-	if encoderWasLongPressed -- this way you cant accidentally click it and call it a day
-		switch (subMenuIndex) 
-			case "setMax = cur"
-				PRBox[mainMenuIndex].setHighToCurrent
-			case "setMin = cur"
-				PRBox[mainMMenuIndex].setLowToCurrent
-
-}
-
-void tickFinalize() {
-	indexOffset = 0;
-}
-
-void tick() {
-	tickController()
 	
-	switch(currentState) {
-		case "MAIN" 
-			tickMainMenu()
-		case "SUBMENU"
-			tickSubMenu()
-	}
-	
-	tickFinalize()
-}
-
-
-
-
-void drawMainMenu() {
-	screen 1
-		draw the list of PR Boxes w/ the one currently selected in the middle and inverted
-	screen 2
-		draw the current selected box's rawValue & lastValue
-		
-}
-void drawSubMenu() {
-
-}
-void draw() {
-	switch(currentState)
-		case "SUBMENU"
-			drawSubMenu()
-			drawMainMenu()
-		case "MENU"
-			drawMainMenu()
-}

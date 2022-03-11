@@ -1,29 +1,62 @@
-
+//#include "GlobalStateMachine.h"
+#include "EncoderButton.h"
+//#include "ScreenData.h"
+#include "WemoWrapper.h"
 #include "Menu.h"
-#include "EncoderData.h"
-#include "ScreenData.h"
-#include "PRBoxData.h"
+#include "PRBoxController.h"
+
+const int ENCODER_PIN_A = 3;
+const int ENCODER_PIN_B = 2;
+const int ENCODER_PIN_BUTTON = 6;
+const int ENCODER_PIN_RED = 4;
+const int ENCODER_PIN_GREEN = 5;
+
+const int PRBOX_PIN_YELLOW = 17;
+const int PRBOX_PIN_GREEN = 20;
+const int PRBOX_PIN_GRAY = 21;
+const int PRBOX_PIN_BLUE = 22;
+const int PRBOX_PIN_ORANGE = 23;
+
+// Every bloody thing
+
+EncoderButton myEncoder(ENCODER_PIN_A, ENCODER_PIN_B, ENCODER_PIN_BUTTON, ENCODER_PIN_RED, ENCODER_PIN_GREEN);
+WemoWrapper wemo();
+
+// Setup Photoresistor boxes
+PRBoxController prBoxA("Avery", 'A', PRBOX_PIN_YELLOW);
+PRBoxController prBoxB("Brian", 'B', PRBOX_PIN_GREEN);
+PRBoxController prBoxC("Chris", 'C', PRBOX_PIN_GRAY);
+PRBoxController prBoxD("Devon", 'D', PRBOX_PIN_BLUE);
+PRBoxController prBoxE("Edith", 'E', PRBOX_PIN_ORANGE);
+
+// Put photoresistor boxes in a nice lil array
+PRBoxController *boxControllers[5] = {&prBoxA, &prBoxB, &prBoxC, &prBoxD, &prBoxE};
+
+AwfulMenu myMenu;
 
 
 void setup() {
-  setupEncoder();
-  setupScreen();
-  setupMenu();
+  myEncoder.attachClick(encoderButtonClicked);
+  myEncoder.attachDoubleClick(encoderButtonDoubleClicked);
+  myEncoder.attachDuringLongPress(encoderButtonHeld);
 }
 
 void loop() {
-  loopEncoder();
-  loopPRBoxes();
-  loopMenu();
-  loopScreen();
+  myEncoder.tick();
+  myMenu.handleRotationInput(myEncoder.read());
+  myMenu.tick();
+}
 
-  
-  static String lastYellowStateChange = yellowBox.getLastStateChange();
 
-  String curYellowStateChange = yellowBox.getLastStateChange();
 
-  if (lastYellowStateChange != curYellowStateChange) {
-    Serial.printf("%s\n", curYellowStateChange.c_str());
-    lastYellowStateChange = curYellowStateChange;
-  }
+void encoderButtonClicked() {
+  myMenu.handleClickInput();
+}
+
+void encoderButtonDoubleClicked() {
+  myMenu.handleDoubleClickInput();
+}
+
+void encoderButtonHeld() {
+  myMenu.handleLongPressInput();
 }
